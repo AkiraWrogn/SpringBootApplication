@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.appsdeveloperblog.app.ws.service.UserService;
 import com.appsdeveloperblog.app.ws.shared.dto.UserDto;
 import com.appsdeveloperblog.app.ws.ui.model.request.UserDetailsRequestModel;
+import com.appsdeveloperblog.app.ws.ui.model.response.ErrorMessages;
 import com.appsdeveloperblog.app.ws.ui.model.response.UserRest;
 
 @RestController
@@ -40,8 +41,11 @@ public class UserController {
 			consumes = {org.springframework.http.MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE},
 			produces = {org.springframework.http.MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE})
 	// request body annoatation will convert incoming request json into JAVA OBJECT
-	public UserRest createUser(@RequestBody UserDetailsRequestModel userDetails) {
+	public UserRest createUser(@RequestBody UserDetailsRequestModel userDetails) throws Exception{
 		UserRest returnValue = new UserRest();
+		//throw custom exception if first name not provided
+		if(userDetails.getFirstName().isEmpty()) throw new Exception(ErrorMessages.MISSING_REQUIRED_FIELD.getErrorMessages());
+		if(userDetails.getLastName().isEmpty()) throw new NullPointerException("the object is null");
 		UserDto userDto = new UserDto();
 		// copy userdetails in to user dto as , user dto will used in all layers
 		BeanUtils.copyProperties(userDetails, userDto);

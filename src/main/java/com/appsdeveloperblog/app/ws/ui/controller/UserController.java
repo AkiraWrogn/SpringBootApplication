@@ -1,5 +1,8 @@
 package com.appsdeveloperblog.app.ws.ui.controller;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -10,6 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 //will recive http request
 
@@ -86,6 +90,24 @@ public class UserController {
 		userService.deleteUser(id);
 		returnValue.setOperationName(RequestOperationName.DELETE.name());
 		returnValue.setOperationResult(RequestOperationStatus.SUCCESS.name());
+		return returnValue;
+	}
+	
+	//pageno = pagesize starting from 0 
+	// get all user pagination, by default page offset = 25 pagesize and pageoffset as querystrin
+	@GetMapping(produces = {org.springframework.http.MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE})
+	public List<UserRest> getAllUsers(@RequestParam(value="pagesize",defaultValue="0") int pagesize,
+	@RequestParam(value="pageoffset",defaultValue="25") int pageoffset)
+	{
+		List<UserRest> returnValue = new ArrayList<>();
+		List<UserDto> users = userService.getUsers(pagesize,pageoffset);
+		
+		for(UserDto user:users)
+		{
+			UserRest userModel = new UserRest();
+			BeanUtils.copyProperties(user, userModel);
+			returnValue.add(userModel);
+		}
 		return returnValue;
 	}
 }

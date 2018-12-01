@@ -15,8 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.appsdeveloperblog.app.ws.service.UserService;
 import com.appsdeveloperblog.app.ws.shared.dto.UserDto;
+import com.appsdeveloperblog.app.ws.ui.model.request.RequestOperationName;
 import com.appsdeveloperblog.app.ws.ui.model.request.UserDetailsRequestModel;
 import com.appsdeveloperblog.app.ws.ui.model.response.ErrorMessages;
+import com.appsdeveloperblog.app.ws.ui.model.response.OperationStatusModel;
+import com.appsdeveloperblog.app.ws.ui.model.response.RequestOperationStatus;
 import com.appsdeveloperblog.app.ws.ui.model.response.UserRest;
 
 @RestController
@@ -75,8 +78,14 @@ public class UserController {
 		BeanUtils.copyProperties(updatedUser, returnValue);
 		return returnValue;	}
 
-	@DeleteMapping
-	public String deletetUser() {
-		return "delete user called";
+	@DeleteMapping(path = "/{id}",
+			produces = {org.springframework.http.MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE}
+			)
+	public OperationStatusModel deletetUser(@PathVariable String id) {
+		OperationStatusModel returnValue = new OperationStatusModel();
+		userService.deleteUser(id);
+		returnValue.setOperationName(RequestOperationName.DELETE.name());
+		returnValue.setOperationResult(RequestOperationStatus.SUCCESS.name());
+		return returnValue;
 	}
 }

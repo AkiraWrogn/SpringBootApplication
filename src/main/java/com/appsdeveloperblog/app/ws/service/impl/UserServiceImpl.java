@@ -10,11 +10,13 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.appsdeveloperblog.app.ws.exception.UserServiceException;
 import com.appsdeveloperblog.app.ws.io.entity.UserEntity;
 import com.appsdeveloperblog.app.ws.io.repositories.UserRepository;
 import com.appsdeveloperblog.app.ws.service.UserService;
 import com.appsdeveloperblog.app.ws.shared.Utils;
 import com.appsdeveloperblog.app.ws.shared.dto.UserDto;
+import com.appsdeveloperblog.app.ws.ui.model.response.ErrorMessages;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -70,6 +72,23 @@ public class UserServiceImpl implements UserService {
 		//userRepository return userentity 
 		UserEntity entity = userRepository.findByUserId(userId);
 		BeanUtils.copyProperties(entity, returnValue);
+		return returnValue;
+	}
+
+	@Override
+	public UserDto updatedUser(String userId,UserDto user) {
+		UserDto returnValue = new UserDto();
+		//userRepository return userentity 
+		UserEntity userEntity = userRepository.findByUserId(userId);
+		//can through this exception or custom exception , i will thorw custom one commenting spring exception
+		//if(userEntity == null)throw new UsernameNotFoundException(email);
+		if(userEntity == null)throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessages());
+		userEntity.setFirstName(user.getFirstName());
+		userEntity.setLastName(user.getLastName());
+		
+		UserEntity updatedUser = userRepository.save(userEntity);
+		BeanUtils.copyProperties(updatedUser, returnValue);
+		
 		return returnValue;
 	}
 

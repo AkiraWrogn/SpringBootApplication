@@ -3,6 +3,7 @@ package com.appsdeveloperblog.app.ws.service.impl;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -19,6 +20,7 @@ import com.appsdeveloperblog.app.ws.io.entity.UserEntity;
 import com.appsdeveloperblog.app.ws.io.repositories.UserRepository;
 import com.appsdeveloperblog.app.ws.service.UserService;
 import com.appsdeveloperblog.app.ws.shared.Utils;
+import com.appsdeveloperblog.app.ws.shared.dto.AddressDto;
 import com.appsdeveloperblog.app.ws.shared.dto.UserDto;
 import com.appsdeveloperblog.app.ws.ui.model.response.ErrorMessages;
 
@@ -38,8 +40,15 @@ public class UserServiceImpl implements UserService {
 		
 		UserEntity storeUserEmail = userRepository.findByEmail(user.getEmail());
 		if(storeUserEmail !=null) throw new RuntimeException("Duplicate email");
-		UserEntity userEntity = new UserEntity();
-		BeanUtils.copyProperties(user, userEntity);
+		
+		for(int i=0;i<user.getAddresses().size();i++) {
+			AddressDto address = user.getAddresses().get(i);
+			address.setUserDetails(user);
+			address.setAddressId(utils.generateAddressId(30));
+		}
+		
+		ModelMapper mapper = new ModelMapper();
+		UserEntity userEntity = mapper.map(user, UserEntity.class);
 		
 		String PublicUserId = utils.generateUserId(30);
 		// hard coding the non nullable fields which are not part of json
@@ -47,8 +56,8 @@ public class UserServiceImpl implements UserService {
 		userEntity.setEncryptedPassword(bCryptPasswordEncoder.encode(user.getPassword()));
 		
 		UserEntity storedUserDetails = userRepository.save(userEntity);
-		UserDto returnValue = new UserDto();
-		BeanUtils.copyProperties(storedUserDetails, returnValue);
+		
+		UserDto returnValue = mapper.map(storedUserDetails, UserDto.class);
 		return returnValue;
 	}
 	

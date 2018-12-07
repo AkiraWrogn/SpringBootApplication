@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -18,21 +19,27 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 //will recive http request
 
+import com.appsdeveloperblog.app.ws.service.AddressService;
 import com.appsdeveloperblog.app.ws.service.UserService;
+import com.appsdeveloperblog.app.ws.shared.dto.AddressDto;
 import com.appsdeveloperblog.app.ws.shared.dto.UserDto;
 import com.appsdeveloperblog.app.ws.ui.model.request.RequestOperationName;
 import com.appsdeveloperblog.app.ws.ui.model.request.UserDetailsRequestModel;
+import com.appsdeveloperblog.app.ws.ui.model.response.AddressRest;
 import com.appsdeveloperblog.app.ws.ui.model.response.ErrorMessages;
 import com.appsdeveloperblog.app.ws.ui.model.response.OperationStatusModel;
 import com.appsdeveloperblog.app.ws.ui.model.response.RequestOperationStatus;
 import com.appsdeveloperblog.app.ws.ui.model.response.UserRest;
-
+import java.lang.reflect.*;
 @RestController
 @RequestMapping("users") // http://localhost:8080/users
 public class UserController {
 
 	@Autowired
 	UserService userService;
+	
+	@Autowired
+	AddressService addressesService;
 
 	// byusing @pathvariable id given in path will be availble in @pathvariable
 	@GetMapping(path = "/{id}",
@@ -120,4 +127,22 @@ public class UserController {
 		}
 		return returnValue;
 	}
+	
+	
+	//localhost:80808/users/id/addresses/ - will give list of address
+	@GetMapping(path = "/{id}/addresses", 
+			produces = {org.springframework.http.MediaType.APPLICATION_JSON_VALUE,MediaType.APPLICATION_XML_VALUE})
+	
+	public List<AddressRest> getUserAddresses(@PathVariable String id) {
+		List<AddressRest> returnValue = new ArrayList<>();
+		List<AddressDto> addressDto = addressesService.getAddresses(id);
+		if(addressDto != null && !addressDto.isEmpty())
+		{
+			ModelMapper modelMapper = new ModelMapper();
+			Type listType = new TypeToken<List<AddressRest>>() {}.getType();
+			returnValue = modelMapper.map(addressDto, listType);
+		}
+		return returnValue;
+	}
+	
 }

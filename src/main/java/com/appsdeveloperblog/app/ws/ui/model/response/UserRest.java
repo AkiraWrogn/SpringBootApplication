@@ -45,6 +45,4 @@ public List<AddressRest> getAddresses() {
 public void setAddresses(List<AddressRest> addresses) {
 	this.addresses = addresses;
 }
-
-
 }

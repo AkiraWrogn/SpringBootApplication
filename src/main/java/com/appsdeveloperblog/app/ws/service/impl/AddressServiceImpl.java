@@ -7,12 +7,14 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.appsdeveloperblog.app.ws.exception.UserServiceException;
 import com.appsdeveloperblog.app.ws.io.entity.AddressEntity;
 import com.appsdeveloperblog.app.ws.io.entity.UserEntity;
 import com.appsdeveloperblog.app.ws.io.repositories.AddressRepository;
 import com.appsdeveloperblog.app.ws.io.repositories.UserRepository;
 import com.appsdeveloperblog.app.ws.service.AddressService;
 import com.appsdeveloperblog.app.ws.shared.dto.AddressDto;
+import com.appsdeveloperblog.app.ws.ui.model.response.ErrorMessages;
 
 @Service
 public class AddressServiceImpl implements AddressService {
@@ -38,6 +40,15 @@ public class AddressServiceImpl implements AddressService {
 		}
 		
 		return returnValue;
+	}
+
+	@Override
+	public AddressDto getAddress(String addressId) {
+	AddressDto returnValue = new AddressDto();
+	AddressEntity addressEntity = addressRepository.findByAddressId(addressId);
+	if(addressEntity == null) throw new UserServiceException(ErrorMessages.NO_RECORD_FOUND.getErrorMessages());
+	returnValue = new ModelMapper().map(addressEntity, AddressDto.class);
+	return returnValue;
 	}
 
 }
